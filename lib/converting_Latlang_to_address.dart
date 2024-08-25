@@ -1,59 +1,68 @@
-// ignore_for_file: use_key_in_widget_constructors,, file_names, library_private_types_in_public_api
-// library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_geocoder/geocoder.dart';
+import 'package:location_geocoder/location_geocoder.dart';
 
-class ConvertingLatlangToAddress extends StatefulWidget {
+class ConvertLatLangToAddress extends StatefulWidget {
+  const ConvertLatLangToAddress({super.key});
+
   @override
-  // ignore: library_private_types_in_public_api
-  _ConvertingLatlangToAddressState createState() =>
-      _ConvertingLatlangToAddressState();
+  _ConvertLatLangToAddressState createState() =>
+      _ConvertLatLangToAddressState();
 }
 
-class _ConvertingLatlangToAddressState
-    extends State<ConvertingLatlangToAddress> {
-  String stAddress = '';
-  Geocoder geocoder = Geocoder();
+class _ConvertLatLangToAddressState extends State<ConvertLatLangToAddress> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Google Map"),
-        centerTitle: true,
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(stAddress),
-          GestureDetector(
-            onTap: () async {
-              try {
-                final coordinates =
-                    Coordinates(37.42796133580664, -122.885749655962);
-                var addresses = await Geocoder.local
-                    .findAddressesFromCoordinates(coordinates);
-                var first = addresses.first;
-                setState(() {
-                  stAddress = "${first.featureName}, ${first.addressLine}";
-                });
-              } catch (e) {
-                print(e);
-              }
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                height: 50,
-                decoration: const BoxDecoration(color: Colors.blue),
-                child: const Center(
-                  child: Text("Convert"),
-                ),
-              ),
+      body: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Column(
+              children: <Widget>[
+                Text('latitude: 37.597576, longitude: 55.771899'),
+                // Text(address),
+              ],
             ),
-          ),
-        ],
+            SizedBox(height: 40),
+            Column(
+              children: <Widget>[
+                Text('address: Москва, 4-я Тверская-Ямская улица, 7'),
+                //Text(latLong),
+              ],
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          late LocatitonGeocoder geocoder = LocatitonGeocoder('');
+
+          final address = await geocoder
+              .findAddressesFromCoordinates(Coordinates(9.9312, 76.2673));
+          var message = address.first.addressLine;
+          if (message == null) return;
+          log(message);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+            ),
+          );
+
+          final address1 =
+              await geocoder.findAddressesFromQuery('kochi,kerala');
+          var message1 = address1.first.coordinates.toString();
+          log(message1);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message1),
+            ),
+          );
+        },
+        child: const Icon(Icons.search),
       ),
     );
   }
